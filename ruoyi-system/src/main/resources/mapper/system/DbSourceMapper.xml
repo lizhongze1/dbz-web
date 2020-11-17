@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.source.mapper.DbSourceMapper">
+    
+    <resultMap type="DbSource" id="DbSourceResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="dbHost"    column="db_host"    />
+        <result property="dbPort"    column="db_port"    />
+        <result property="dbUser"    column="db_user"    />
+        <result property="dbPwd"    column="db_pwd"    />
+        <result property="kafkaUrl"    column="kafka_url"    />
+        <result property="dbServerId"    column="db_server_id"    />
+    </resultMap>
+
+    <sql id="selectDbSourceVo">
+        select id, name, db_host, db_port, db_user, db_pwd, kafka_url, db_server_id from db_source
+    </sql>
+
+    <select id="selectDbSourceList" parameterType="DbSource" resultMap="DbSourceResult">
+        <include refid="selectDbSourceVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="dbHost != null  and dbHost != ''"> and db_host = #{dbHost}</if>
+            <if test="dbPort != null  and dbPort != ''"> and db_port = #{dbPort}</if>
+            <if test="dbUser != null  and dbUser != ''"> and db_user = #{dbUser}</if>
+            <if test="dbPwd != null  and dbPwd != ''"> and db_pwd = #{dbPwd}</if>
+            <if test="kafkaUrl != null  and kafkaUrl != ''"> and kafka_url = #{kafkaUrl}</if>
+            <if test="dbServerId != null "> and db_server_id = #{dbServerId}</if>
+        </where>
+    </select>
+    
+    <select id="selectDbSourceById" parameterType="String" resultMap="DbSourceResult">
+        <include refid="selectDbSourceVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDbSource" parameterType="DbSource">
+        insert into db_source
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="dbHost != null">db_host,</if>
+            <if test="dbPort != null">db_port,</if>
+            <if test="dbUser != null">db_user,</if>
+            <if test="dbPwd != null">db_pwd,</if>
+            <if test="kafkaUrl != null">kafka_url,</if>
+            <if test="dbServerId != null">db_server_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="dbHost != null">#{dbHost},</if>
+            <if test="dbPort != null">#{dbPort},</if>
+            <if test="dbUser != null">#{dbUser},</if>
+            <if test="dbPwd != null">#{dbPwd},</if>
+            <if test="kafkaUrl != null">#{kafkaUrl},</if>
+            <if test="dbServerId != null">#{dbServerId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDbSource" parameterType="DbSource">
+        update db_source
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="dbHost != null">db_host = #{dbHost},</if>
+            <if test="dbPort != null">db_port = #{dbPort},</if>
+            <if test="dbUser != null">db_user = #{dbUser},</if>
+            <if test="dbPwd != null">db_pwd = #{dbPwd},</if>
+            <if test="kafkaUrl != null">kafka_url = #{kafkaUrl},</if>
+            <if test="dbServerId != null">db_server_id = #{dbServerId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDbSourceById" parameterType="String">
+        delete from db_source where id = #{id}
+    </delete>
+
+    <delete id="deleteDbSourceByIds" parameterType="String">
+        delete from db_source where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>
