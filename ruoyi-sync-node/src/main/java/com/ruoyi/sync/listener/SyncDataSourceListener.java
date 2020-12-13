@@ -3,7 +3,9 @@ package com.ruoyi.sync.listener;
 
 import com.ruoyi.sync.annotation.SyncDataSourceHandler;
 import com.ruoyi.sync.service.DbzSync;
+import com.ruoyi.sync.service.StartupPublish;
 import com.ruoyi.sync.service.SyncDataSourceContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import java.util.Map;
  */
 @Component
 public class SyncDataSourceListener implements ApplicationListener<ContextRefreshedEvent> {
+    @Autowired
+    private com.ruoyi.sync.service.StartupPublish startupPublish;
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         Map<String, Object> beans = contextRefreshedEvent.getApplicationContext().getBeansWithAnnotation(SyncDataSourceHandler.class);
@@ -30,6 +34,6 @@ public class SyncDataSourceListener implements ApplicationListener<ContextRefres
             SyncDataSourceHandler typeHandler = bean.getClass().getAnnotation(SyncDataSourceHandler.class);
             serviceContext.putDbzSync(typeHandler.value().code, (DbzSync) bean);
         });
-
+        startupPublish.publish();
     }
 }

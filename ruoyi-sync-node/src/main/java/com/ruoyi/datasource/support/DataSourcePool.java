@@ -29,7 +29,7 @@ public class DataSourcePool {
     public void initDataSourcePool(SyncDataSource syncDataSource){
         DruidDataSource ds = new DruidDataSource();
         ds.setDriverClassName(syncDataSource.getDriver());
-        ds.setUrl(syncDataSource.getUrl());
+        ds.setUrl(syncDataSource.getUrl()+"?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false");
         ds.setUsername(syncDataSource.getUsername());
         ds.setPassword(syncDataSource.getPassword());
         ds.setInitialSize(1);

@@ -1,5 +1,8 @@
 package com.ruoyi.sync.service;
 
+import com.ruoyi.system.domain.SyncDataSource;
+import com.ruoyi.system.domain.SyncInstanceConfig;
+
 import java.io.IOException;
 
 /**
@@ -15,6 +18,6 @@ import java.io.IOException;
  *
  */
 public interface DbzSync {
-     boolean start() throws IOException;
+     boolean start(SyncInstanceConfig syncDataSource) throws IOException;
      boolean stop();
 }

@@ -120,3 +120,4 @@ xss:
 sync:
   ip: localhost
   port: 80
+  file: C:\Users\21585\Pictures

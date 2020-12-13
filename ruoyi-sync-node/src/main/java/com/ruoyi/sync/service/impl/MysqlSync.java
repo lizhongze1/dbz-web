@@ -9,7 +9,10 @@ import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.RecordChangeEvent;
 import io.debezium.engine.format.ChangeEventFormat;
 import io.debezium.engine.format.Json;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,32 +31,41 @@ import java.util.concurrent.Executors;
  * 　　* @date: 2020/12/05 14:03
  */
 @SyncDataSourceHandler(value =SyncDataSource.MYSQL)
+@Component
+@Slf4j
 public class MysqlSync extends AbstractSync implements DbzSync {
+    @Value("${sync.file}")
+    private String filePath;
     final Properties props = new Properties();
 
     @Override
-    public boolean start() throws IOException {
+    public boolean start(com.ruoyi.system.domain.SyncInstanceConfig syncDataSource) throws IOException {
         final Properties props = new Properties();
-
-        props.setProperty("name", "engine");
+        com.ruoyi.system.domain.SyncDataSource sourceDs=syncDataSource.getSourceDs();
+        String url= syncDataSource.getSourceDs().getUrl();
+        String host=url.substring(url.indexOf("//")+2,url.lastIndexOf(":"));
+        String port=url.substring(url.lastIndexOf(":")+1,url.lastIndexOf("/"));
+        String database=url.substring(url.lastIndexOf("/")+1,url.length());
+        log.info("url={},host={},port={},database={}",url,host,port,database);
+        props.setProperty("name", syncDataSource.getName());
         props.setProperty("offset.storage", "org.apache.kafka.connect.storage.FileOffsetBackingStore");
-        props.setProperty("offset.storage.file.filename", "C:\\Users\\21585\\Pictures\\offsets.dat");
+        props.setProperty("offset.storage.file.filename", filePath+"\\"+"offset\\"+syncDataSource.getId()+"\\storage.dat");
         props.setProperty("offset.flush.interval.ms", "60000");
         /* begin connector properties */
-        props.setProperty("database.hostname", "localhost");
-        props.setProperty("database.port", "3306");
-        props.setProperty("database.user", "root");
-        props.setProperty("database.password", "root");
-        props.setProperty("database.server.id", "85744");
-        props.setProperty("database.server.name", "my-app-connector");
+        props.setProperty("database.hostname", host);
+        props.setProperty("database.port", port);
+        props.setProperty("database.user", sourceDs.getUsername());
+        props.setProperty("database.password", sourceDs.getPassword());
+        props.setProperty("database.server.id", syncDataSource.getId()+"899");
+
+       props.setProperty("database.server.name", syncDataSource.getName());
         props.setProperty("database.history",
                 "io.debezium.relational.history.FileDatabaseHistory");
         props.setProperty("database.history.file.filename",
-                "C:\\Users\\21585\\Pictures\\dbhistory.dat");
+                filePath+"\\"+"offset\\"+syncDataSource.getId()+"\\history.dat");
 
                 props.setProperty("connector.class", "io.debezium.connector.mysql.MySqlConnector");
-        props.setProperty("table.whitlelist", "employees,222");
-        props.setProperty("database.whitelist", "aba");
+        props.setProperty("database.whitelist", database);
 
         // Create the engine with this configuration ...
 /*        DebeziumEngine<RecordChangeEvent<SourceRecord>> engine = DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
