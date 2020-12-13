@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SyncNodeServerMapper">
+    
+    <resultMap type="SyncNodeServer" id="SyncNodeServerResult">
+        <result property="id"    column="id"    />
+        <result property="clusterId"    column="cluster_id"    />
+        <result property="name"    column="name"    />
+        <result property="ip"    column="ip"    />
+        <result property="adminPort"    column="admin_port"    />
+        <result property="tcpPort"    column="tcp_port"    />
+        <result property="status"    column="status"    />
+        <result property="modifiedTime"    column="modified_time"    />
+    </resultMap>
+
+    <sql id="selectSyncNodeServerVo">
+        select id, cluster_id, name, ip, admin_port, tcp_port, status, modified_time from sync_node_server
+    </sql>
+
+    <select id="selectSyncNodeServerList" parameterType="SyncNodeServer" resultMap="SyncNodeServerResult">
+        <include refid="selectSyncNodeServerVo"/>
+        <where>  
+            <if test="clusterId != null "> and cluster_id = #{clusterId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="adminPort != null "> and admin_port = #{adminPort}</if>
+            <if test="tcpPort != null "> and tcp_port = #{tcpPort}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="modifiedTime != null "> and modified_time = #{modifiedTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectSyncNodeServerById" parameterType="Long" resultMap="SyncNodeServerResult">
+        <include refid="selectSyncNodeServerVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSyncNodeServer" parameterType="SyncNodeServer" useGeneratedKeys="true" keyProperty="id">
+        insert into sync_node_server
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clusterId != null">cluster_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="ip != null and ip != ''">ip,</if>
+            <if test="adminPort != null">admin_port,</if>
+            <if test="tcpPort != null">tcp_port,</if>
+            <if test="status != null">status,</if>
+            <if test="modifiedTime != null">modified_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="clusterId != null">#{clusterId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="ip != null and ip != ''">#{ip},</if>
+            <if test="adminPort != null">#{adminPort},</if>
+            <if test="tcpPort != null">#{tcpPort},</if>
+            <if test="status != null">#{status},</if>
+            <if test="modifiedTime != null">#{modifiedTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSyncNodeServer" parameterType="SyncNodeServer">
+        update sync_node_server
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clusterId != null">cluster_id = #{clusterId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="ip != null and ip != ''">ip = #{ip},</if>
+            <if test="adminPort != null">admin_port = #{adminPort},</if>
+            <if test="tcpPort != null">tcp_port = #{tcpPort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="modifiedTime != null">modified_time = #{modifiedTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSyncNodeServerById" parameterType="Long">
+        delete from sync_node_server where id = #{id}
+    </delete>
+
+    <delete id="deleteSyncNodeServerByIds" parameterType="String">
+        delete from sync_node_server where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

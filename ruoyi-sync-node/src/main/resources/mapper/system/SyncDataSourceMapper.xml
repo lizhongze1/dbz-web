@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SyncDataSourceMapper">
+    
+    <resultMap type="SyncDataSource" id="SyncDataSourceResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="url"    column="url"    />
+        <result property="type"    column="type"    />
+        <result property="port"    column="port"    />
+    </resultMap>
+
+    <sql id="selectSyncDataSourceVo">
+        select id, name, url, type, port from sync_data_source
+    </sql>
+
+    <select id="selectSyncDataSourceList" parameterType="SyncDataSource" resultMap="SyncDataSourceResult">
+        <include refid="selectSyncDataSourceVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="url != null  and url != ''"> and url = #{url}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="port != null "> and port = #{port}</if>
+        </where>
+    </select>
+    
+    <select id="selectSyncDataSourceById" parameterType="Long" resultMap="SyncDataSourceResult">
+        <include refid="selectSyncDataSourceVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSyncDataSource" parameterType="SyncDataSource" useGeneratedKeys="true" keyProperty="id">
+        insert into sync_data_source
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="url != null">url,</if>
+            <if test="type != null">type,</if>
+            <if test="port != null">port,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="url != null">#{url},</if>
+            <if test="type != null">#{type},</if>
+            <if test="port != null">#{port},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSyncDataSource" parameterType="SyncDataSource">
+        update sync_data_source
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="port != null">port = #{port},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSyncDataSourceById" parameterType="Long">
+        delete from sync_data_source where id = #{id}
+    </delete>
+
+    <delete id="deleteSyncDataSourceByIds" parameterType="String">
+        delete from sync_data_source where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>
