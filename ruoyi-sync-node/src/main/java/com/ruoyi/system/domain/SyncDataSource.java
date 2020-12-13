@@ -7,7 +7,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 数据源维护对象 sync_data_source
- * 
+ *
  * @author lizz
  * @date 2020-12-13
  */
@@ -34,48 +34,79 @@ public class SyncDataSource extends BaseEntity
     @Excel(name = "端口")
     private Long port;
 
-    public void setId(Long id) 
+
+    private String driver;
+
+
+    private String username;
+    private String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public Long getId() 
+    public Long getId()
     {
         return id;
     }
-    public void setName(String name) 
+    public void setName(String name)
     {
         this.name = name;
     }
 
-    public String getName() 
+    public String getName()
     {
         return name;
     }
-    public void setUrl(String url) 
+    public void setUrl(String url)
     {
         this.url = url;
     }
 
-    public String getUrl() 
+    public String getUrl()
     {
         return url;
     }
-    public void setType(String type) 
+    public void setType(String type)
     {
         this.type = type;
     }
 
-    public String getType() 
+    public String getType()
     {
         return type;
     }
-    public void setPort(Long port) 
+    public void setPort(Long port)
     {
         this.port = port;
     }
 
-    public Long getPort() 
+    public Long getPort()
     {
         return port;
     }

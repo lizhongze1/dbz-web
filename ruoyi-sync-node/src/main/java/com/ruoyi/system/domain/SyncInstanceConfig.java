@@ -80,9 +80,36 @@ public class SyncInstanceConfig extends BaseEntity {
     private String ip;
     @Excel(name = "tcpPort")
     private Long tcpPort;
-
+    private String driver;
     private String dsTargetUrl;
     private String dsSourceUrl;
+
+    private SyncDataSource targetDs;
+    private SyncDataSource sourceDs;
+
+    public SyncDataSource getTargetDs() {
+        return targetDs;
+    }
+
+    public void setTargetDs(SyncDataSource targetDs) {
+        this.targetDs = targetDs;
+    }
+
+    public SyncDataSource getSourceDs() {
+        return sourceDs;
+    }
+
+    public void setSourceDs(SyncDataSource sourceDs) {
+        this.sourceDs = sourceDs;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
 
     public String getDsSourceUrl() {
         return dsSourceUrl;

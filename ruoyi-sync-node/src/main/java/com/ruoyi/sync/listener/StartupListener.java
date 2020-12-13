@@ -1,6 +1,7 @@
 package com.ruoyi.sync.listener;
 
 import com.ruoyi.common.utils.thread.NamedThreadFactory;
+import com.ruoyi.datasource.support.DataSourcePool;
 import com.ruoyi.sync.service.DbzSync;
 import com.ruoyi.sync.service.impl.MysqlSync;
 import com.ruoyi.system.domain.SyncInstanceConfig;
@@ -11,10 +12,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Consumer;
 
 /**
  * 　  * @className: StartupListener
@@ -35,6 +36,13 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private long port;
     @Autowired
     com.ruoyi.system.service.ISyncInstanceConfigService syncInstanceConfigService;
+    @Autowired
+    com.ruoyi.sync.service.SyncDataSourceContext syncDataSourceContext;
+
+    @Autowired
+    com.ruoyi.system.service.ISyncDataSourceService syncDataSourceService;
+    @Autowired
+    com.ruoyi.datasource.support.DataSourcePool dataSourcePool;
 
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
             new NamedThreadFactory("dbz-server-scan"));
@@ -46,8 +54,30 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             syncInstanceConfig.setIp(ip);
             syncInstanceConfig.setTcpPort(port);
             List<SyncInstanceConfig> syncNodeServers = syncInstanceConfigService.getSyncInstanceConfigList(syncInstanceConfig);
-            Consumer consumer = StartupListener::start;
-            consumer.accept(this);
+
+            if (syncNodeServers.size() > 0) {
+                for (SyncInstanceConfig syncInstance : syncNodeServers
+                ) {
+                    //初始化连接池
+                    try {
+                        dataSourcePool.initDataSourcePool(syncInstance.getTargetDs());
+                    }catch (Exception e){
+
+                        log.info("初始化连接池失败{}",e);
+                    }
+                    DbzSync dbzSync = syncDataSourceContext.getDbzSync(syncInstance.getTargetDs().getType());
+                    try {
+                        dbzSync.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+            }
+
+/*            Consumer consumer = StartupListener::start;
+            consumer.accept(this);*/
         }
     }
 

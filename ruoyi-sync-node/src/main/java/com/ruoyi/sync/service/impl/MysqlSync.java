@@ -1,5 +1,7 @@
 package com.ruoyi.sync.service.impl;
 
+import com.ruoyi.sync.annotation.SyncDataSourceHandler;
+import com.ruoyi.sync.enums.SyncDataSource;
 import com.ruoyi.sync.service.DbzSync;
 import io.debezium.embedded.Connect;
 import io.debezium.engine.ChangeEvent;
@@ -25,6 +27,7 @@ import java.util.concurrent.Executors;
  * 　　* @author: lizz
  * 　　* @date: 2020/12/05 14:03
  */
+@SyncDataSourceHandler(value =SyncDataSource.MYSQL)
 public class MysqlSync extends AbstractSync implements DbzSync {
     final Properties props = new Properties();
 
