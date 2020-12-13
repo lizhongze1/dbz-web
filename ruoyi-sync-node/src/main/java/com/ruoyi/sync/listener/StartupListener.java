@@ -3,8 +3,7 @@ package com.ruoyi.sync.listener;
 import com.ruoyi.common.utils.thread.NamedThreadFactory;
 import com.ruoyi.sync.service.DbzSync;
 import com.ruoyi.sync.service.impl.MysqlSync;
-import com.ruoyi.system.domain.SyncNodeServer;
-import com.ruoyi.system.mapper.SyncNodeServerMapper;
+import com.ruoyi.system.domain.SyncInstanceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +11,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -36,9 +32,9 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Value("${sync.ip}")
     private String ip;
     @Value("${sync.port}")
-    private String port;
+    private long port;
     @Autowired
-    com.ruoyi.system.mapper.SyncNodeServerMapper syncNodeServerMapper;
+    com.ruoyi.system.service.ISyncInstanceConfigService syncInstanceConfigService;
 
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
             new NamedThreadFactory("dbz-server-scan"));
@@ -46,8 +42,10 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         if (contextRefreshedEvent.getApplicationContext().getParent() == null) {
-            SyncNodeServer syncNodeServer=new SyncNodeServer();
-            List<SyncNodeServer> syncNodeServers= syncNodeServerMapper.selectSyncNodeServerList(syncNodeServer);
+            SyncInstanceConfig syncInstanceConfig = new SyncInstanceConfig();
+            syncInstanceConfig.setIp(ip);
+            syncInstanceConfig.setTcpPort(port);
+            List<SyncInstanceConfig> syncNodeServers = syncInstanceConfigService.getSyncInstanceConfigList(syncInstanceConfig);
             Consumer consumer = StartupListener::start;
             consumer.accept(this);
         }
@@ -55,17 +53,17 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private static void start(Object o) {
 
-        DbzSync DbzSync=new MysqlSync();
+        DbzSync DbzSync = new MysqlSync();
         try {
             DbzSync.start();
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
 
-    /*    executor.scheduleWithFixedDelay(new Runnable() {
+        /*    executor.scheduleWithFixedDelay(new Runnable() {
 
-           *//* private PlainCanal lastCanalConfig;
-*//*
+         *//* private PlainCanal lastCanalConfig;
+         *//*
             public void run() {
                 try {
 

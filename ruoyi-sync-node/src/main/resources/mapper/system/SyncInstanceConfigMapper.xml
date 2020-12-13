@@ -15,6 +15,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="modifiedTime"    column="modified_time"    />
         <result property="dsTargetId"    column="ds_target_id"    />
         <result property="dsSourceId"    column="ds_source_id"    />
+        <result property="dsTargetUrl"    column="ds_target_url"    />
+        <result property="dsSourceUrl"    column="ds_source_url"    />
+
     </resultMap>
 
     <sql id="selectSyncInstanceConfigVo">
@@ -53,6 +56,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="modifiedTime != null "> and modified_time = #{modifiedTime}</if>
             <if test="dsTargetId != null "> and ds_target_id = #{dsTargetId}</if>
             <if test="dsSourceId != null "> and ds_source_id = #{dsSourceId}</if>
+            <if test="dsSourceId != null "> and sns.tcp_port = #{tcpPort}</if>
+            <if test="dsSourceId != null "> and sns.ip = #{ip}</if>
         </where>
     </select>
 
