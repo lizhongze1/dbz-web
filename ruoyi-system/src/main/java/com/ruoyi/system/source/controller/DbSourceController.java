@@ -22,12 +22,12 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 数据源Controller
- * 
+ *
  * @author lizz
  * @date 2020-11-17
  */
 @RestController
-@RequestMapping("/system/source")
+//@RequestMapping("/system/source")
 public class DbSourceController extends BaseController
 {
     @Autowired

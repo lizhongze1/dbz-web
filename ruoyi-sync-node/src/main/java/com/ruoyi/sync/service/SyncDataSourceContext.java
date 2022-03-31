@@ -17,13 +17,13 @@ import java.util.Map;
  */
 @Component
 public class SyncDataSourceContext {
-    private final Map<String, DbzSync> handlerMap = new HashMap<>();
+    private final Map<String, DbzSource> handlerMap = new HashMap<>();
 
-    public DbzSync getDbzSync(String type) {
+    public DbzSource getDbzSync(String type) {
         return handlerMap.get(type);
     }
 
-    public void putDbzSync(String code, DbzSync dbzSync) {
-        handlerMap.put(code, dbzSync);
+    public void putDbzSync(String code, DbzSource dbzSource) {
+        handlerMap.put(code, dbzSource);
     }
 }

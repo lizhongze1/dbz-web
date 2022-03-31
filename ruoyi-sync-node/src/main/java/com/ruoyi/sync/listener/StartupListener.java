@@ -1,8 +1,10 @@
 package com.ruoyi.sync.listener;
 
 import com.ruoyi.common.utils.thread.NamedThreadFactory;
+import com.ruoyi.ssh.SshManager;
 import com.ruoyi.sync.event.StartupPublishEvent;
-import com.ruoyi.sync.service.DbzSync;
+import com.ruoyi.sync.service.DbzSource;
+import com.ruoyi.sync.service.impl.FileOffsetBackingStoreExt;
 import com.ruoyi.system.domain.SyncInstanceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,10 @@ public class StartupListener implements ApplicationListener<StartupPublishEvent>
     com.ruoyi.system.service.ISyncDataSourceService syncDataSourceService;
     @Autowired
     com.ruoyi.datasource.support.DataSourcePool dataSourcePool;
+    @Autowired
+    SshManager SshManager;
+    @Autowired
+    FileOffsetBackingStoreExt FileOffsetBackingStoreExt;
 
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
             new NamedThreadFactory("dbz-server-scan"));
@@ -48,9 +54,20 @@ public class StartupListener implements ApplicationListener<StartupPublishEvent>
     @Override
     public void onApplicationEvent(StartupPublishEvent contextRefreshedEvent) {
 
+/*
+        try {
+            SshManager.startSsh();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSchException e) {
+            e.printStackTrace();
+        }*/
+
+
         SyncInstanceConfig syncInstanceConfig = new SyncInstanceConfig();
         syncInstanceConfig.setIp(ip);
         syncInstanceConfig.setTcpPort(port);
+
         List<SyncInstanceConfig> syncNodeServers = syncInstanceConfigService.getSyncInstanceConfigList(syncInstanceConfig);
 
         if (syncNodeServers.size() > 0) {
@@ -64,9 +81,10 @@ public class StartupListener implements ApplicationListener<StartupPublishEvent>
                     log.info("初始化连接池失败{}", e);
                     continue;
                 }
-                DbzSync dbzSync = syncDataSourceContext.getDbzSync(syncInstance.getTargetDs().getType());
+                DbzSource dbzSource = syncDataSourceContext.getDbzSync(syncInstance.getTargetDs().getType());
                 try {
-                    dbzSync.start(syncInstance);
+                    dbzSource.start(syncInstance);
+            /*        executor.execute(FileOffsetBackingStoreExt.);*/
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -82,9 +100,9 @@ public class StartupListener implements ApplicationListener<StartupPublishEvent>
 
    /* private static void start(Object o) {
 
-        DbzSync DbzSync = new MysqlSync();
+        DbzSource DbzSource = new MysqlSource();
         try {
-            DbzSync.start();
+            DbzSource.start();
         } catch (Exception e) {
 
         }

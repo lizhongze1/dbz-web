@@ -7,7 +7,7 @@ import java.io.IOException;
 
 /**
  *
- * 　  * @className: DbzSync
+ * 　  * @className: DbzSource
  * 　　* @description:TODO
  * 　　* @param:
  * 　　* @return:
@@ -17,7 +17,7 @@ import java.io.IOException;
  * 　　* @date: 2020/12/05 14:05
  *
  */
-public interface DbzSync {
+public interface DbzSource {
      boolean start(SyncInstanceConfig syncDataSource) throws IOException;
      boolean stop();
 }

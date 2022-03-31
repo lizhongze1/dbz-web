@@ -82,6 +82,11 @@
             <artifactId>debezium-embedded</artifactId>
             <version>${version.debezium}</version>
         </dependency>
+<!--        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-examples</artifactId>
+            <version>${version.debezium}</version>
+        </dependency>-->
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
@@ -95,6 +100,11 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.54</version>
         </dependency>
     </dependencies>
 
