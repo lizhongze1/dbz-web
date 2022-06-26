@@ -1,27 +1,23 @@
 package com.ruoyi.sync.service.impl;
 
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.sync.annotation.SyncDataSourceHandler;
+import com.ruoyi.sync.embedded.AbstractDebeziumSqlProvider;
+import com.ruoyi.sync.embedded.DebeziumRecordUtils;
+import com.ruoyi.sync.embedded.DebeziumSqlProviderFactory;
 import com.ruoyi.sync.enums.SyncDataSource;
 import com.ruoyi.sync.service.DbzSource;
-import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.data.Envelope;
 import io.debezium.embedded.EmbeddedEngine;
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
-import io.debezium.engine.RecordChangeEvent;
-import io.debezium.engine.format.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -43,6 +39,14 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class MysqlSource extends AbstractSync implements DbzSource {
+
+    @Autowired
+    // @Qualifier("keyConverter")
+    private JsonConverter keyConverter;
+
+    @Autowired
+    //@Qualifier("valueConverter")
+    private JsonConverter valueConverter;
 
     @Value("${sync.file}")
     private String filePath;
@@ -78,30 +82,42 @@ public class MysqlSource extends AbstractSync implements DbzSource {
         props.setProperty("connector.class", "io.debezium.connector.mysql.MySqlConnector");
         props.setProperty("database.include.list", database);
         props.setProperty("table.include.list", "tsest123");
-       // props.setProperty("snapshot.mode", "schema_only");
-        final DebeziumEngine<ChangeEvent<String, String>> engine = (DebeziumEngine<ChangeEvent<String, String>>) DebeziumEngine.create(Json.class)
+        // props.setProperty("snapshot.mode", "schema_only");
+/*        final DebeziumEngine<ChangeEvent<String, String>> engine = (DebeziumEngine<ChangeEvent<String, String>>) DebeziumEngine.create(Json.class)
                 .using(props).notifying((records, committer) -> {
-
                     for (ChangeEvent<String, String> r : records) {
                         System.out.println("Key = '" + r.key() + "' value = '" + r.value() + "'");
                       //  log.info(r.key());
                         committer.markProcessed(r);
-
-
                     }
                     committer.markBatchFinished();
                 }).build();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(engine);
-        executor.shutdown();
+        executor.shutdown();*/
+
+        EmbeddedEngine engine = (EmbeddedEngine) EmbeddedEngine.create()
+                .using(props)
+                .using(this.getClass().getClassLoader())
+                .notifying(this::handleRecord)
+                .build();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        executor.execute(engine);
+
+        shutdownHook(engine);
+
+        awaitTermination(executor);
         return true;
     }
+
 
     /**
      * For every record this method will be invoked.
      */
-   /* private void handleRecord(SourceRecord record) {
+    private void handleRecord(SourceRecord record) {
         logRecord(record);
 
         Struct payload = (Struct) record.value();
@@ -109,7 +125,7 @@ public class MysqlSource extends AbstractSync implements DbzSource {
             return;
         }
         String table = Optional.ofNullable(DebeziumRecordUtils.getRecordStructValue(payload, "source"))
-                .map(s->s.getString("table")).orElse(null);
+                .map(s -> s.getString("table")).orElse(null);
 
 //        // 处理数据DML
         Envelope.Operation operation = DebeziumRecordUtils.getOperation(payload);
@@ -125,42 +141,43 @@ public class MysqlSource extends AbstractSync implements DbzSource {
             handleDDL(ddl);
         }
     }
+
     private String getDDL(Struct payload) {
         String ddl = DebeziumRecordUtils.getDDL(payload);
         if (StringUtils.isBlank(ddl)) {
             return null;
         }
         String db = DebeziumRecordUtils.getDatabaseName(payload);
-        if (StringUtils.isBlank(db)) {
+/*        if (StringUtils.isBlank(db)) {
             db = embeddedConfig.getString(MySqlConnectorConfig.DATABASE_WHITELIST);
-        }
+        }*/
         ddl = ddl.replace(db + ".", "");
         ddl = ddl.replace("`" + db + "`.", "");
         return ddl;
     }
 
-    *//**
+    /**
      * 执行数据库ddl语句
      *
      * @param ddl
-     *//*
+     */
     private void handleDDL(String ddl) {
         log.info("ddl语句 : {}", ddl);
         try {
-            jdbcTemplate.execute(ddl);
+            //jdbcTemplate.execute(ddl);
         } catch (Exception e) {
             log.error("数据库操作DDL语句失败，", e);
         }
     }
 
-    *//**
+    /**
      * 处理insert,update,delete等DML语句
      *
      * @param key       表主键修改事件结构
      * @param payload   表正文响应
      * @param table     表名
      * @param operation DML操作类型
-     *//*
+     */
     private void handleDML(Struct key, Struct payload, String table, Envelope.Operation operation) {
         AbstractDebeziumSqlProvider provider = DebeziumSqlProviderFactory.getProvider(operation);
         if (Objects.isNull(provider)) {
@@ -176,23 +193,25 @@ public class MysqlSource extends AbstractSync implements DbzSource {
 
         try {
             log.info("dml语句 : {}", sql);
-            namedTemplate.update(sql, provider.getSqlParameterMap());
+            // namedTemplate.update(sql, provider.getSqlParameterMap());
         } catch (Exception e) {
             log.error("数据库DML操作失败，", e);
         }
     }
 
-    *//**
+    /**
      * 打印消息
      *
      * @param record
-     *//*
+     */
     private void logRecord(SourceRecord record) {
-        final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
+
+        log.info("--------------------");
+/*        final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
         final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
         log.info("Publishing Topic --> {}", record.topic());
         log.info("Key --> {}", new String(key));
-        log.info("Payload --> {}", new String(payload));
+        log.info("Payload --> {}", new String(payload));*/
     }
 
     private void shutdownHook(EmbeddedEngine engine) {
@@ -211,12 +230,4 @@ public class MysqlSource extends AbstractSync implements DbzSource {
             Thread.interrupted();
         }
     }
-
-
-    class MyChangeConsumer implements DebeziumEngine.ChangeConsumer<RecordChangeEvent<SourceRecord>> {
-        @Override
-        public void handleBatch(List<RecordChangeEvent<SourceRecord>> records, DebeziumEngine.RecordCommitter<RecordChangeEvent<SourceRecord>> committer) throws InterruptedException {
-            System.out.println("-----------------" + records + committer + "-------------------");
-        }
-    }*/
 }
