@@ -207,6 +207,7 @@
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
         <module>ruoyi-sync-node</module>
+        <module>kafka-connect-jdbc</module>
 
     </modules>
     <packaging>pom</packaging>

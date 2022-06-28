@@ -1,4 +1,4 @@
-package com.ruoyi.system.connect;
+package com.ruoyi.system.connect.bootstrap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.utils.Exit;

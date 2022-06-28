@@ -70,10 +70,7 @@ public class StandaloneConnectConfig {
         workerProps.put("plugin.path", "D:\\javaSource\\RuoYi-Vue\\sql");
         workerProps.put("key.converter", "org.apache.kafka.connect.json.JsonConverter");
         workerProps.put("value.converter", "org.apache.kafka.connect.json.JsonConverter");
-        //workerProps.put("key.converter", "io.confluent.connect.avro.AvroConverter");
-        //workerProps.put("value.converter", "io.confluent.connect.avro.AvroConverter");
-        //  workerProps.put("group.id", "connect-cluster1");
-        /*        workerProps.put("offset.storage.topic", "connect-offsets");*/
+
         workerProps.put("connector.class", "io.debezium.connector.mysql.MySqlConnector");
         workerProps.put("name", "izz");
         workerProps.put("database.history.kafka.topic", "izz");
@@ -84,15 +81,9 @@ public class StandaloneConnectConfig {
         workerProps.put("database.password", "root");
         workerProps.put("database.server.name", "localhost");
         workerProps.put("database.history.kafka.bootstrap.servers", "localhost:9092");
-        //  workerProps.put("config.storage.topic", "connect-configs1");
-        // workerProps.put("status.storage.topic", "connect-status1");
         workerProps.put("bootstrap.servers", "localhost:9092");
-        //    workerProps.put("offset.storage.replication.factor", "1");
-        //   workerProps.put("config.storage.replication.factor", "1");
-        //     workerProps.put("status.storage.replication.factor", "1");
 
         workerProps.put("offset.storage.file.filename", "/tmp/connect.offsets");
-        //     workerProps.put("offset.storage.topic", "testTopic");
 
         return workerProps;
     }

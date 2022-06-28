@@ -41,7 +41,7 @@ import java.util.concurrent.TimeoutException;
  * @date 2020-11-17
  */
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/connectors")
 public class TaskController extends BaseController {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectorsResource.class);
